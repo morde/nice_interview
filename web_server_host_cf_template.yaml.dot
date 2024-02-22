@@ -1,0 +1,16 @@
+digraph "template" {
+ServerVPC [color=black, label="ServerVPC\n<AWS::EC2::VPC>", shape=ellipse, type=Resource];
+ServerSubnet [color=black, label="ServerSubnet\n<AWS::EC2::Subnet>", shape=ellipse, type=Resource];
+ServerVPCIGW [color=black, label="ServerVPCIGW\n<AWS::EC2::InternetGateway>", shape=ellipse, type=Resource];
+ServerVPCGatewayAtt [color=black, label="ServerVPCGatewayAtt\n<AWS::EC2::VPCGatewayAttachment>", shape=ellipse, type=Resource];
+WebServerSG [color=black, label="WebServerSG\n<AWS::EC2::SecurityGroup>", shape=ellipse, type=Resource];
+JenkinsNodeSG [color=black, label="JenkinsNodeSG\n<AWS::EC2::SecurityGroup>", shape=ellipse, type=Resource];
+WebServerHost [color=black, label="WebServerHost\n<AWS::EC2::Instance>", shape=ellipse, type=Resource];
+ServerSubnet -> ServerVPC  [color=black, key=0, label=Ref, source_paths="['Properties', 'VpcId']"];
+ServerVPCGatewayAtt -> ServerVPC  [color=black, key=0, label=Ref, source_paths="['Properties', 'VpcId']"];
+ServerVPCGatewayAtt -> ServerVPCIGW  [color=black, key=0, label=Ref, source_paths="['Properties', 'InternetGatewayId']"];
+WebServerSG -> ServerVPC  [color=black, key=0, label=Ref, source_paths="['Properties', 'VpcId']"];
+JenkinsNodeSG -> ServerVPC  [color=black, key=0, label=Ref, source_paths="['Properties', 'VpcId']"];
+WebServerHost -> WebServerSG  [color=black, key=0, label=Ref, source_paths="['Properties', 'SecurityGroupIds', 0]"];
+WebServerHost -> JenkinsNodeSG  [color=black, key=0, label=Ref, source_paths="['Properties', 'SecurityGroupIds', 1]"];
+}
