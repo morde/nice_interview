@@ -62,7 +62,28 @@ Resources:
     Properties:
       VpcId: !Ref ServerVPC
       InternetGatewayId: !Ref ServerVPCIGW
+
+  ServerRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref ServerVPC
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+  ServerRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref ServerRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref ServerVPCIGW
   
+  ServerRouteTableAss:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref ServerSubnet
+      RouteTableId: !Ref ServerRouteTable
+      
   WebServerSG:
     Type: AWS::EC2::SecurityGroup
     Properties: 
