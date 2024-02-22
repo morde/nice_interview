@@ -18,7 +18,7 @@ Parameters:
 
   ImageID:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-minimal-kernel-default-arm64
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-minimal-kernel-6.1-x86_64
     Description: Web Server host ami
 
   ServerKeyPair:
