@@ -13,4 +13,5 @@ WebServerSG -> ServerVPC  [color=black, key=0, label=Ref, source_paths="['Proper
 JenkinsNodeSG -> ServerVPC  [color=black, key=0, label=Ref, source_paths="['Properties', 'VpcId']"];
 WebServerHost -> WebServerSG  [color=black, key=0, label=Ref, source_paths="['Properties', 'SecurityGroupIds', 0]"];
 WebServerHost -> JenkinsNodeSG  [color=black, key=0, label=Ref, source_paths="['Properties', 'SecurityGroupIds', 1]"];
+WebServerHost -> ServerSubnet  [color=black, key=0, label=Ref, source_paths="['Properties', 'SubnetId']"];
 }
