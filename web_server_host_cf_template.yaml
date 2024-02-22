@@ -103,7 +103,7 @@ Resources:
       UserData: !Base64 |
         #!/bin/bash -ex
         yum update
-        
+
         # install nginx to create web hosting 
         yum install nginx -y
         yum systemctl enable nginx
@@ -117,4 +117,9 @@ Resources:
 
 
 Outputs:
-  WebServer
+  WebServerURL:
+    Description: URL of the website
+    Value:
+      Fn::GetAtt:
+      - WebServerHost
+      - PublicIp
