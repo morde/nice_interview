@@ -83,7 +83,7 @@ Resources:
     Properties:
       SubnetId: !Ref ServerSubnet
       RouteTableId: !Ref ServerRouteTable
-      
+
   WebServerSG:
     Type: AWS::EC2::SecurityGroup
     Properties: 
@@ -129,8 +129,8 @@ Resources:
 
         # install nginx to create web hosting 
         yum install nginx -y
-        yum systemctl enable nginx
-        yum systemctl start nginx
+        systemctl enable nginx
+        systemctl start nginx
 
         # install java to support jenkins node
         yum install java-openjdk11 -y
