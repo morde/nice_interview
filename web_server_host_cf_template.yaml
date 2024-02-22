@@ -1,0 +1,120 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Templated for NICE interview to create web server host EC2"
+
+Parameters: 
+  EnvironmentName:
+    Type: String
+    Description: Environment name (eg. test, ci, prod)
+
+  VPCCIDR:
+    Type: String
+    Default: 10.192.0.0/16
+    Description: VPC CIDR for web server host
+
+  SubnetCIDR:
+    Type: String
+    Default: 10.192.10.0/24
+    Description: Subnet CIDR for web server host
+
+  ImageID:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-minimal-kernel-default-arm64
+    Description: Web Server host ami
+
+  ServerKeyPair:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: KeyPair for web server host 
+  
+  JenkinsIP:
+    Type: String
+    Description: Jenkins ip to allow deployment
+
+Resources: 
+  ServerVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      EnableDnsSupport: true
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  
+  ServerSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs '']
+      VpcId: !Ref ServerVPC
+      CidrBlock: !Ref SubnetCIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+  
+  ServerVPCIGW:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+  ServerVPCGatewayAtt:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref ServerVPC
+      InternetGatewayId: !Ref ServerVPCIGW
+  
+  WebServerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Web Server host SG for enable public http 
+      VpcId: !Ref ServerVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+  JenkinsNodeSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH for Jenkins node 
+      VpcId: !Ref ServerVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Sub "${JenkinsIP}/32"
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+  WebServerHost:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref ServerKeyPair 
+      ImageId: !Ref ImageID
+      InstanceType: t2.micro
+      Monitoring: true
+      SecurityGroupIds: 
+        - !Ref WebServerSG
+      UserData: !Base64 |
+        #!/bin/bash -ex
+        yum update
+        
+        # install nginx to create web hosting 
+        yum install nginx -y
+        yum systemctl enable nginx
+        yum systemctl start nginx
+
+        # install java to support jenkins node
+        yum install java-openjdk11 -y
+      Tags:
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+
+Outputs:
+  WebServer
