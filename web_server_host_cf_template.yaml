@@ -133,7 +133,7 @@ Resources:
         systemctl start nginx
 
         # install java to support jenkins node
-        yum install java-openjdk11 -y
+        dnf install java-11-amazon-corretto-devel
       Tags:
         - Key: Environment
           Value: !Ref EnvironmentName
